@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import {
-  ActivityIndicator, FlatList, KeyboardAvoidingView, Platform,
+  ActivityIndicator, Alert, FlatList, KeyboardAvoidingView, Platform,
   Pressable, StyleSheet, Text, View,
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
@@ -43,11 +43,40 @@ export default function App() {
     fetchReply(messages);
   }
 
+  function handleNewConversation() {
+    Alert.alert(
+      'Nouvelle conversation',
+      'Effacer la discussion en cours avec Socrate ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Effacer',
+          style: 'destructive',
+          onPress: () => {
+            setMessages([]);
+            setError(null);
+          },
+        },
+      ],
+    );
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <StatusBar style="dark" />
-        <Text style={styles.title}>🏛️ Socrate</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>🏛️ Socrate</Text>
+          {messages.length > 0 ? (
+            <Pressable
+              onPress={handleNewConversation}
+              disabled={isLoading}
+              style={[styles.newButton, isLoading && styles.newButtonDisabled]}
+            >
+              <Text style={styles.newButtonText}>New Chat</Text>
+            </Pressable>
+          ) : null}
+        </View>
 
         <KeyboardAvoidingView
           style={styles.flex}
@@ -83,8 +112,9 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
+  header: { justifyContent: 'center', paddingVertical: 12 },
   flex: { flex: 1 },
-  title: { fontSize: 20, fontWeight: '700', textAlign: 'center', paddingVertical: 12 },
+  title: { fontSize: 20, fontWeight: '700', textAlign: 'center' },
   list: { padding: 12, flexGrow: 1 },
   empty: { textAlign: 'center', color: '#6B7280', marginTop: 40 },
   loader: { marginVertical: 8 },
@@ -95,4 +125,11 @@ const styles = StyleSheet.create({
   errorText: { flex: 1, color: '#991B1B' },
   retryButton: { backgroundColor: '#DC2626', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8 },
   retryText: { color: '#FFFFFF', fontWeight: '600' },
+  newButton: {
+    position: 'absolute', right: 12,
+    paddingHorizontal: 12, paddingVertical: 6,
+    borderRadius: 16, borderWidth: 1, borderColor: '#4F46E5',
+  },
+  newButtonDisabled: { opacity: 0.4 },
+  newButtonText: { color: '#4F46E5', fontWeight: '600' },
 });
